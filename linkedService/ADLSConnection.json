@@ -4,15 +4,12 @@
 		"parameters": {
 			"adlsconnection": {
 				"type": "String"
-			},
-			"adlsconnectionlink": {
-				"type": "String"
 			}
 		},
 		"annotations": [],
 		"type": "AzureBlobFS",
 		"typeProperties": {
-			"url": "@{linkedService().adlsconnectionlink}",
+			"url": "https://adlswmadftraining.blob.core.windows.net/adls-wm-adf-training",
 			"accountKey": {
 				"type": "AzureKeyVaultSecret",
 				"store": {
