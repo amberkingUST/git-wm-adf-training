@@ -1,0 +1,9 @@
+{
+	"name": "adf-wm-adf-training-dev",
+	"location": "westus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0a9c9b65-eadb-4f74-b95a-5a9b821d1960",
+		"tenantId": "3352c4d0-33e5-4899-9d84-1ca608f6b031"
+	}
+}
