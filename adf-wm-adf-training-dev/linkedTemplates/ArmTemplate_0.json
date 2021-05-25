@@ -99,27 +99,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureSQLDB')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "sqlconnection",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "",
-					"table": ""
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/sqlconnection')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -345,9 +324,14 @@
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "AzureSQLDB",
+								"referenceName": "sqlconnection",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"Environment": {
+										"value": "@pipeline().globalParameters.EnvironmentGP",
+										"type": "Expression"
+									}
+								}
 							},
 							"firstRowOnly": false
 						}
@@ -402,7 +386,7 @@
 				"lastPublishTime": "2021-04-30T23:02:40Z"
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureSQLDB')]",
+				"[concat(variables('factoryId'), '/datasets/sqlconnection')]",
 				"[concat(variables('factoryId'), '/pipelines/ParameterCopyPipeline')]"
 			]
 		}
