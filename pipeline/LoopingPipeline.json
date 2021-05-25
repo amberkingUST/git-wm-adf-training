@@ -22,8 +22,14 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureSQLDB",
-						"type": "DatasetReference"
+						"referenceName": "sqlconnection",
+						"type": "DatasetReference",
+						"parameters": {
+							"Environment": {
+								"value": "@pipeline().globalParameters.EnvironmentGP",
+								"type": "Expression"
+							}
+						}
 					},
 					"firstRowOnly": false
 				}
