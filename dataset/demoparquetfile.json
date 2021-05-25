@@ -3,7 +3,17 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ADLSConnection",
-			"type": "LinkedServiceReference"
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"adlsconnection": {
+					"value": "@concat(dataset().Environment,'-adlsconnectionstring')",
+					"type": "Expression"
+				},
+				"adlsconnectionlink": {
+					"value": "@dataset().ADLSConnectionLink",
+					"type": "Expression"
+				}
+			}
 		},
 		"parameters": {
 			"ADLSConnection": {
@@ -19,6 +29,9 @@
 				"type": "string"
 			},
 			"dataSource": {
+				"type": "string"
+			},
+			"Environment": {
 				"type": "string"
 			}
 		},

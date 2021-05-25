@@ -19,14 +19,14 @@
 						"type": "AzureSqlSource",
 						"additionalColumns": [
 							{
-								"name": "TriggerTime",
+								"name": "triggerTime",
 								"value": {
 									"value": "@pipeline().TriggerTime",
 									"type": "Expression"
 								}
 							},
 							{
-								"name": "PipelineID",
+								"name": "pipelineID",
 								"value": {
 									"value": "@pipeline().RunId",
 									"type": "Expression"
