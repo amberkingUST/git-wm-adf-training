@@ -1,0 +1,30 @@
+{
+	"name": "AdventureWorksParamTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sqlconnection",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"sinkSchema": {
+				"type": "String"
+			},
+			"sinkTable": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().sinkSchema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().sinkTable",
+				"type": "Expression"
+			}
+		}
+	}
+}
