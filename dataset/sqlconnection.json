@@ -1,0 +1,15 @@
+{
+	"name": "sqlconnection",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sqlconnection",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"Environment": "dev"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
