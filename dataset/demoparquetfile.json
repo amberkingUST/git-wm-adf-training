@@ -8,10 +8,6 @@
 				"adlsconnection": {
 					"value": "@concat(dataset().Environment,'-adlsconnectionstring')",
 					"type": "Expression"
-				},
-				"adlsconnectionlink": {
-					"value": "@dataset().ADLSConnectionLink",
-					"type": "Expression"
 				}
 			}
 		},
