@@ -27,6 +27,14 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat(dataset().pipelineID,dataset().triggerTime)",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().dataSource",
+					"type": "Expression"
+				},
 				"fileSystem": "akdemodata"
 			},
 			"compressionCodec": "gzip"
