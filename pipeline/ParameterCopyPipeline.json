@@ -74,13 +74,38 @@
 				"outputs": [
 					{
 						"referenceName": "demoparquetfile",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"ADLSConnection": {
+								"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-adlsconnectionstring')",
+								"type": "Expression"
+							},
+							"triggerTime": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
+							"pipelineID": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"dataSource": {
+								"value": "@pipeline().parameters.dataSource",
+								"type": "Expression"
+							},
+							"Environment": {
+								"value": "@pipeline().globalParameters.EnvironmentGP",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			}
 		],
 		"parameters": {
 			"sourceSQLQuery": {
+				"type": "string"
+			},
+			"dataSource": {
 				"type": "string"
 			}
 		},
