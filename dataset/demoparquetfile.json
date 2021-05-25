@@ -44,7 +44,10 @@
 					"value": "@dataset().dataSource",
 					"type": "Expression"
 				},
-				"fileSystem": "akdemodata"
+				"fileSystem": {
+					"value": "@dataset().Environment",
+					"type": "Expression"
+				}
 			},
 			"compressionCodec": "gzip"
 		},
