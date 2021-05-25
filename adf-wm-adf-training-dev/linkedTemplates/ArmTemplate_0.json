@@ -328,7 +328,7 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"Environment": {
-										"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-sqlserverconnection')",
+										"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-sqlserverconnectionstring')",
 										"type": "Expression"
 									}
 								}
