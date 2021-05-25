@@ -1,0 +1,25 @@
+{
+	"name": "sqlconnection",
+	"properties": {
+		"parameters": {
+			"Environment": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "kvwmadftraining",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": {
+					"value": "@linkedService().Environment",
+					"type": "Expression"
+				}
+			}
+		}
+	}
+}

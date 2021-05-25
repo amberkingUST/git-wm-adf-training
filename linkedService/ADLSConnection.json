@@ -1,0 +1,27 @@
+{
+	"name": "ADLSConnection",
+	"properties": {
+		"parameters": {
+			"adlsconnection": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://adlswmadftraining.blob.core.windows.net/adls-wm-adf-training",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "kvwmadftraining",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": {
+					"value": "@linkedService().adlsconnection",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
+}
