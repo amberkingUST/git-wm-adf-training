@@ -15,9 +15,6 @@
 			"ADLSConnection": {
 				"type": "string"
 			},
-			"ADLSConnectionLink": {
-				"type": "string"
-			},
 			"triggerTime": {
 				"type": "string"
 			},
