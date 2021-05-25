@@ -2,7 +2,7 @@
 	"name": "sqlconnection",
 	"properties": {
 		"parameters": {
-			"kvsecretname": {
+			"Environment": {
 				"type": "String"
 			}
 		},
@@ -16,7 +16,7 @@
 					"type": "LinkedServiceReference"
 				},
 				"secretName": {
-					"value": "@linkedService().kvsecretname",
+					"value": "@linkedService().Environment",
 					"type": "Expression"
 				}
 			}
