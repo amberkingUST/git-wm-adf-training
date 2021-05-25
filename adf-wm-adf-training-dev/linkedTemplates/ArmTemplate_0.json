@@ -99,41 +99,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AdventureWorksParamTable')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "sqlconnection",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"sinkSchema": {
-						"type": "String"
-					},
-					"sinkTable": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": {
-						"value": "@dataset().sinkSchema",
-						"type": "Expression"
-					},
-					"table": {
-						"value": "@dataset().sinkTable",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/sqlconnection')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/AzureSQLDB')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -155,7 +120,30 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/demoparquetfile')]",
+			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqlconnection",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sqlconnection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -170,8 +158,8 @@
 					}
 				},
 				"parameters": {
-					"ADLSConnection": {
-						"type": "string"
+					"Environment": {
+						"type": "String"
 					},
 					"triggerTime": {
 						"type": "string"
@@ -180,9 +168,6 @@
 						"type": "string"
 					},
 					"dataSource": {
-						"type": "string"
-					},
-					"Environment": {
 						"type": "string"
 					}
 				},
@@ -210,72 +195,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLSConnection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demoparquetfile1')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSConnection",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"dlSchema": {
-						"type": "String"
-					},
-					"dlTable": {
-						"type": "String"
-					},
-					"dateTime": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().dateTime",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@concat(dataset().dlSchema,'/',dataset().dlTable)",
-							"type": "Expression"
-						},
-						"fileSystem": "akdemodata"
-					},
-					"compressionCodec": "gzip"
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSConnection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "sqlconnection",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Environment": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/sqlconnection')]"
 			]
 		},
 		{
@@ -355,11 +274,11 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "demoparquetfile",
+								"referenceName": "ADLS",
 								"type": "DatasetReference",
 								"parameters": {
-									"ADLSConnection": {
-										"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-adlsconnectionstring')",
+									"Environment": {
+										"value": "@pipeline().globalParameters.EnvironmentGP",
 										"type": "Expression"
 									},
 									"triggerTime": {
@@ -372,10 +291,6 @@
 									},
 									"dataSource": {
 										"value": "@pipeline().parameters.dataSource",
-										"type": "Expression"
-									},
-									"Environment": {
-										"value": "@pipeline().globalParameters.EnvironmentGP",
 										"type": "Expression"
 									}
 								}
@@ -395,7 +310,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/sqlconnection')]",
-				"[concat(variables('factoryId'), '/datasets/demoparquetfile')]"
+				"[concat(variables('factoryId'), '/datasets/ADLS')]"
 			]
 		},
 		{

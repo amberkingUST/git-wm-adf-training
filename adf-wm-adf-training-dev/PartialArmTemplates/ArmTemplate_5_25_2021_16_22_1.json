@@ -1,0 +1,184 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-wm-adf-training-dev"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ParameterCopyPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyTableActivity",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"additionalColumns": [
+									{
+										"name": "triggerTime",
+										"value": {
+											"value": "@pipeline().TriggerTime",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "pipelineID",
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										}
+									}
+								],
+								"sqlReaderQuery": {
+									"value": "@pipeline().parameters.sourceSQLQuery",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "sqlconnection",
+								"type": "DatasetReference",
+								"parameters": {
+									"Environment": {
+										"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-sqlserverconnectionstring')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADLS",
+								"type": "DatasetReference",
+								"parameters": {
+									"Environment": {
+										"value": "@pipeline().globalParameters.EnvironmentGP",
+										"type": "Expression"
+									},
+									"triggerTime": {
+										"value": "@pipeline().TriggerTime",
+										"type": "Expression"
+									},
+									"pipelineID": {
+										"value": "@pipeline().RunId",
+										"type": "Expression"
+									},
+									"dataSource": {
+										"value": "@pipeline().parameters.dataSource",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"parameters": {
+					"sourceSQLQuery": {
+						"type": "string"
+					},
+					"dataSource": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLSConnection",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"adlsconnection": {
+							"value": "@concat(dataset().Environment,'-adlsconnectionstring')",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"Environment": {
+						"type": "String"
+					},
+					"triggerTime": {
+						"type": "string"
+					},
+					"pipelineID": {
+						"type": "string"
+					},
+					"dataSource": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(dataset().pipelineID,dataset().triggerTime)",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().dataSource",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().Environment",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "gzip"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		}
+	]
+}
