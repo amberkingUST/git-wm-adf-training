@@ -73,11 +73,11 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "demoparquetfile",
+						"referenceName": "ADLS",
 						"type": "DatasetReference",
 						"parameters": {
-							"ADLSConnection": {
-								"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-adlsconnectionstring')",
+							"Environment": {
+								"value": "@pipeline().globalParameters.EnvironmentGP",
 								"type": "Expression"
 							},
 							"triggerTime": {
@@ -90,10 +90,6 @@
 							},
 							"dataSource": {
 								"value": "@pipeline().parameters.dataSource",
-								"type": "Expression"
-							},
-							"Environment": {
-								"value": "@pipeline().globalParameters.EnvironmentGP",
 								"type": "Expression"
 							}
 						}
