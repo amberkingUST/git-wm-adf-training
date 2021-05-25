@@ -126,7 +126,13 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "sqlconnection",
-					"type": "LinkedServiceReference"
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Environment": {
+							"value": "@dataset().Environment",
+							"type": "Expression"
+						}
+					}
 				},
 				"parameters": {
 					"Environment": {
