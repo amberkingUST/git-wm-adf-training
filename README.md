@@ -1,0 +1,1 @@
+# git-wm-adf-training
