@@ -17,6 +17,22 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
+						"additionalColumns": [
+							{
+								"name": "TriggerTime",
+								"value": {
+									"value": "@pipeline().TriggerTime",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "PipelineID",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							}
+						],
 						"sqlReaderQuery": {
 							"value": "@pipeline().parameters.sourceSQLQuery",
 							"type": "Expression"
@@ -46,23 +62,19 @@
 				"inputs": [
 					{
 						"referenceName": "sqlconnection",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Environment": {
+								"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-sqlserverconnectionstring')",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"outputs": [
 					{
 						"referenceName": "demoparquetfile",
-						"type": "DatasetReference",
-						"parameters": {
-							"dlTable": {
-								"value": "@pipeline().parameters.sourceTable",
-								"type": "Expression"
-							},
-							"dateTime": {
-								"value": "@pipeline().TriggerTime",
-								"type": "Expression"
-							}
-						}
+						"type": "DatasetReference"
 					}
 				]
 			}
