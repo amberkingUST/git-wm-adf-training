@@ -3,9 +3,11 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "sqlconnection",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"Environment": "dev"
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Environment": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
