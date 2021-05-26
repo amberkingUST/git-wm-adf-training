@@ -23,6 +23,9 @@
 			},
 			"dataSource": {
 				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -32,6 +35,10 @@
 				"type": "AzureBlobFSLocation",
 				"fileName": {
 					"value": "@concat(dataset().pipelineID,dataset().triggerTime)",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().tableName",
 					"type": "Expression"
 				},
 				"fileSystem": "@dataset().dataSource"

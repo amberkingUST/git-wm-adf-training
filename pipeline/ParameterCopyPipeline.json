@@ -103,6 +103,9 @@
 			},
 			"dataSource": {
 				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
 			}
 		},
 		"annotations": []
