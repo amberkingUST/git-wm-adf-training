@@ -385,10 +385,13 @@
 							"type": "Expression"
 						},
 						"folderPath": {
-							"value": "@dataset().tableName",
+							"value": "@concat(dataset().dataSource,'/',dataset().tableName)",
 							"type": "Expression"
 						},
-						"fileSystem": "@dataset().dataSource"
+						"fileSystem": {
+							"value": "@dataset().Environment",
+							"type": "Expression"
+						}
 					},
 					"compressionCodec": "gzip"
 				},
