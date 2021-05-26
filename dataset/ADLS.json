@@ -34,14 +34,7 @@
 					"value": "@concat(dataset().pipelineID,dataset().triggerTime)",
 					"type": "Expression"
 				},
-				"folderPath": {
-					"value": "@dataset().dataSource",
-					"type": "Expression"
-				},
-				"fileSystem": {
-					"value": "@dataset().Environment",
-					"type": "Expression"
-				}
+				"fileSystem": "@dataset().dataSource"
 			},
 			"compressionCodec": "gzip"
 		},
