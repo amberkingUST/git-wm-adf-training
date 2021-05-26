@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference",
 			"parameters": {
 				"adlsconnection": {
-					"value": "@concat(dataset().Environment,'-adlsconnectionstring')",
+					"value": "@concat(dataset().Environment,'-adlskey1')",
 					"type": "Expression"
 				}
 			}
