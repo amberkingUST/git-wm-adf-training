@@ -7,13 +7,9 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adf-wm-adf-training-dev"
 		},
-		"ADLSConnection_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'ADLSConnection'"
-		},
 		"ADLSConnection_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://adlswmadftraining.dfs.core.windows.net"
+			"defaultValue": "https://adlswmadftraining.dfs.core.windows.net/"
 		},
 		"kvwmadftraining_properties_typeProperties_baseUrl": {
 			"type": "string",
@@ -288,12 +284,21 @@
 				"typeProperties": {
 					"url": "[parameters('ADLSConnection_properties_typeProperties_url')]",
 					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ADLSConnection_accountKey')]"
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "kvwmadftraining",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": {
+							"value": "@linkedService().adlsconnection",
+							"type": "Expression"
+						}
 					}
 				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/kvwmadftraining')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/kvwmadftraining')]",

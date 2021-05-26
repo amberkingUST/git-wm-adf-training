@@ -7,17 +7,13 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adf-wm-adf-training-dev"
 		},
-		"ADLSConnection_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'ADLSConnection'"
-		},
-		"ADLSConnection_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://adlswmadftraining.dfs.core.windows.net"
-		},
 		"kvwmadftraining_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://kv-wm-adf-training.vault.azure.net/"
+		},
+		"ADLSConnection_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlswmadftraining.dfs.core.windows.net/"
 		},
 		"sqlconnection_properties_typeProperties_connectionString_secretName": {
 			"type": "string",
@@ -28,6 +24,19 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/kvwmadftraining')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('kvwmadftraining_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ADLSConnection')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
@@ -43,25 +52,21 @@
 				"typeProperties": {
 					"url": "[parameters('ADLSConnection_properties_typeProperties_url')]",
 					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ADLSConnection_accountKey')]"
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "kvwmadftraining",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": {
+							"value": "@linkedService().adlsconnection",
+							"type": "Expression"
+						}
 					}
 				}
 			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/kvwmadftraining')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureKeyVault",
-				"typeProperties": {
-					"baseUrl": "[parameters('kvwmadftraining_properties_typeProperties_baseUrl')]"
-				}
-			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/kvwmadftraining')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
@@ -91,6 +96,35 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/kvwmadftraining')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqlconnection",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Environment": {
+							"value": "@dataset().Environment",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"Environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sqlconnection')]"
 			]
 		},
 		{
@@ -146,35 +180,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLSConnection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "sqlconnection",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"Environment": {
-							"value": "@dataset().Environment",
-							"type": "Expression"
-						}
-					}
-				},
-				"parameters": {
-					"Environment": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/sqlconnection')]"
 			]
 		},
 		{
