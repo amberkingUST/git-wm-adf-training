@@ -72,7 +72,8 @@
 									"dataSource": {
 										"value": "@item().dataSource",
 										"type": "Expression"
-									}
+									},
+									"tableName": "@item().tableName"
 								}
 							}
 						}
