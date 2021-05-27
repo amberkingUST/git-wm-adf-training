@@ -1,5 +1,6 @@
 {
 	"name": "ADLSConnection",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"parameters": {
 			"adlsconnection": {
@@ -22,6 +23,5 @@
 				}
 			}
 		}
-	},
-	"type": "Microsoft.DataFactory/factories/linkedservices"
+	}
 }
