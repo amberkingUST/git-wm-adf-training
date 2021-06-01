@@ -527,7 +527,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"on": {
-											"value": "@item.dataSource",
+											"value": "@item().dataSource",
 											"type": "Expression"
 										},
 										"cases": [
