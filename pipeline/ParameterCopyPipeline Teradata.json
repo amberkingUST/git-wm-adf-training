@@ -1,0 +1,120 @@
+{
+	"name": "ParameterCopyPipeline Teradata",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyTableActivity",
+				"description": "abcd",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"additionalColumns": [
+							{
+								"name": "triggerTime",
+								"value": {
+									"value": "@pipeline().TriggerTime",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "pipelineID",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							}
+						],
+						"sqlReaderQuery": {
+							"value": "@pipeline().parameters.sourceSQLQuery",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "sqlconnection",
+						"type": "DatasetReference",
+						"parameters": {
+							"Environment": {
+								"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-sqlserverconnectionstring')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADLS",
+						"type": "DatasetReference",
+						"parameters": {
+							"Environment": {
+								"value": "@pipeline().globalParameters.EnvironmentGP",
+								"type": "Expression"
+							},
+							"triggerTime": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
+							"pipelineID": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"dataSource": {
+								"value": "@pipeline().parameters.dataSource",
+								"type": "Expression"
+							},
+							"tableName": {
+								"value": "@pipeline().parameters.tableName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"sourceSQLQuery": {
+				"type": "string"
+			},
+			"dataSource": {
+				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-05-26T16:26:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
