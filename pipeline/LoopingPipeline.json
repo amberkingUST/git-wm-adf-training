@@ -17,7 +17,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT dataSource\n,sqlQuery\n,tableName\nFROM Automation.TableConfiguration t\nWHERE dataSource = 'SQLServer'\nAND triggerTimeUTC = '03:00:00.0000000'\nAND sqlQuery IS NOT NULL",
+						"sqlReaderQuery": {
+							"value": "@concat('Exec stpname ',pipeline().TriggerTime)",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -54,30 +57,78 @@
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "Run Parameter Copy Pipeline",
-							"type": "ExecutePipeline",
+							"name": "Switch1",
+							"type": "Switch",
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"pipeline": {
-									"referenceName": "ParameterCopyPipeline",
-									"type": "PipelineReference"
+								"on": {
+									"value": "@item.dataSource",
+									"type": "Expression"
 								},
-								"waitOnCompletion": false,
-								"parameters": {
-									"sourceSQLQuery": {
-										"value": "@item().sqlQuery",
-										"type": "Expression"
-									},
-									"dataSource": {
-										"value": "@item().dataSource",
-										"type": "Expression"
-									},
-									"tableName": {
-										"value": "@item().tableName",
-										"type": "Expression"
+								"cases": [
+									{
+										"value": "Teradata",
+										"activities": [
+											{
+												"name": "Run Parameter Copy Pipeline Teradata",
+												"type": "ExecutePipeline",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"pipeline": {
+														"referenceName": "ParameterCopyPipeline",
+														"type": "PipelineReference"
+													},
+													"waitOnCompletion": false,
+													"parameters": {
+														"sourceSQLQuery": {
+															"value": "@item().sqlQuery",
+															"type": "Expression"
+														},
+														"dataSource": {
+															"value": "@item().dataSource",
+															"type": "Expression"
+														},
+														"tableName": {
+															"value": "@item().tableName",
+															"type": "Expression"
+														}
+													}
+												}
+											}
+										]
 									}
-								}
+								],
+								"defaultActivities": [
+									{
+										"name": "Run Parameter Copy Pipeline SQLServer",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "ParameterCopyPipeline",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": false,
+											"parameters": {
+												"sourceSQLQuery": {
+													"value": "@item().sqlQuery",
+													"type": "Expression"
+												},
+												"dataSource": {
+													"value": "@item().dataSource",
+													"type": "Expression"
+												},
+												"tableName": {
+													"value": "@item().tableName",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								]
 							}
 						}
 					]
