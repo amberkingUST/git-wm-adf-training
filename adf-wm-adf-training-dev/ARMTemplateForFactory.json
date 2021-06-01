@@ -128,6 +128,7 @@
 				"activities": [
 					{
 						"name": "CopyTableActivity",
+						"description": "abcd",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -170,7 +171,8 @@
 									"type": "AzureBlobFSWriteSettings"
 								},
 								"formatSettings": {
-									"type": "ParquetWriteSettings"
+									"type": "ParquetWriteSettings",
+									"maxRowsPerFile": 100
 								}
 							},
 							"enableStaging": false,
