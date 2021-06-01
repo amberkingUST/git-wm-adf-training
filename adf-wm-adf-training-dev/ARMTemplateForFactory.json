@@ -1,0 +1,409 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-wm-adf-training-dev"
+		},
+		"ADLSConnection_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlswmadftraining.dfs.core.windows.net/"
+		},
+		"kvwmadftraining_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://kv-wm-adf-training.vault.azure.net/"
+		},
+		"sqlconnection_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "@linkedService().Environment"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/LoopingPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Table List",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT dataSource\n,sqlQuery\n,tableName\nFROM Automation.TableConfiguration t\nWHERE dataSource = 'SQLServer'\nAND triggerTimeUTC = '03:00:00.0000000'\nAND sqlQuery IS NOT NULL",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "sqlconnection",
+								"type": "DatasetReference",
+								"parameters": {
+									"Environment": {
+										"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-sqlserverconnectionstring')",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "For Each Pipeline",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Table List",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('Get Table List').output.value)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Run Parameter Copy Pipeline",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ParameterCopyPipeline",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": false,
+										"parameters": {
+											"sourceSQLQuery": {
+												"value": "@item().sqlQuery",
+												"type": "Expression"
+											},
+											"dataSource": {
+												"value": "@item().dataSource",
+												"type": "Expression"
+											},
+											"tableName": {
+												"value": "@item().tableName",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"annotations": [],
+				"lastPublishTime": "2021-05-26T16:26:32Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sqlconnection')]",
+				"[concat(variables('factoryId'), '/pipelines/ParameterCopyPipeline')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ParameterCopyPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyTableActivity",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"additionalColumns": [
+									{
+										"name": "triggerTime",
+										"value": {
+											"value": "@pipeline().TriggerTime",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "pipelineID",
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										}
+									}
+								],
+								"sqlReaderQuery": {
+									"value": "@pipeline().parameters.sourceSQLQuery",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "sqlconnection",
+								"type": "DatasetReference",
+								"parameters": {
+									"Environment": {
+										"value": "@concat(pipeline().globalParameters.EnvironmentGP,'-sqlserverconnectionstring')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADLS",
+								"type": "DatasetReference",
+								"parameters": {
+									"Environment": {
+										"value": "@pipeline().globalParameters.EnvironmentGP",
+										"type": "Expression"
+									},
+									"triggerTime": {
+										"value": "@pipeline().TriggerTime",
+										"type": "Expression"
+									},
+									"pipelineID": {
+										"value": "@pipeline().RunId",
+										"type": "Expression"
+									},
+									"dataSource": {
+										"value": "@pipeline().parameters.dataSource",
+										"type": "Expression"
+									},
+									"tableName": {
+										"value": "@pipeline().parameters.tableName",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"parameters": {
+					"sourceSQLQuery": {
+						"type": "string"
+					},
+					"dataSource": {
+						"type": "string"
+					},
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-05-26T16:26:31Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sqlconnection')]",
+				"[concat(variables('factoryId'), '/datasets/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLSConnection",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"adlsconnection": {
+							"value": "@concat(dataset().Environment,'-adlskey1')",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"Environment": {
+						"type": "String"
+					},
+					"triggerTime": {
+						"type": "string"
+					},
+					"pipelineID": {
+						"type": "string"
+					},
+					"dataSource": {
+						"type": "string"
+					},
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(dataset().pipelineID,dataset().triggerTime)",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat(dataset().dataSource,'/',dataset().tableName)",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().Environment",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "gzip"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLSConnection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqlconnection",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Environment": {
+							"value": "@dataset().Environment",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"Environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sqlconnection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLSConnection')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"adlsconnection": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLSConnection_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "kvwmadftraining",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": {
+							"value": "@linkedService().adlsconnection",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/kvwmadftraining')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/kvwmadftraining')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('kvwmadftraining_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqlconnection')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"Environment": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "kvwmadftraining",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": {
+							"value": "[parameters('sqlconnection_properties_typeProperties_connectionString_secretName')]",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/kvwmadftraining')]"
+			]
+		}
+	]
+}

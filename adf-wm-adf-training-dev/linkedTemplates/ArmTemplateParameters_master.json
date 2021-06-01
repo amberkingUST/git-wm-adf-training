@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-wm-adf-training-dev"
+		},
+		"ADLSConnection_properties_typeProperties_url": {
+			"value": "https://adlswmadftraining.dfs.core.windows.net/"
+		},
+		"kvwmadftraining_properties_typeProperties_baseUrl": {
+			"value": "https://kv-wm-adf-training.vault.azure.net/"
+		},
+		"sqlconnection_properties_typeProperties_connectionString_secretName": {
+			"value": "@linkedService().Environment"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

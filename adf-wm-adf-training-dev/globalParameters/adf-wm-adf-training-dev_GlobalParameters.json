@@ -1,0 +1,6 @@
+{
+	"EnvironmentGP": {
+		"type": "string",
+		"value": "dev"
+	}
+}
