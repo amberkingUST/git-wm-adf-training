@@ -45,10 +45,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "@concat('Exec stpname ',pipeline().TriggerTime)",
-									"type": "Expression"
-								},
+								"sqlReaderQuery": "EXEC Automation.stpGetRunJobs 'SQLServer', '03:00:00.0000000'",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
