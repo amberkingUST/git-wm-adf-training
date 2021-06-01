@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "CopyTableActivity",
+				"description": "abc",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
