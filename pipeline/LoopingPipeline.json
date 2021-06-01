@@ -95,34 +95,59 @@
 												}
 											}
 										]
+									},
+									{
+										"value": "SQLServer",
+										"activities": [
+											{
+												"name": "Run Parameter Copy Pipeline SQLServer_copy1",
+												"type": "ExecutePipeline",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"pipeline": {
+														"referenceName": "ParameterCopyPipeline",
+														"type": "PipelineReference"
+													},
+													"waitOnCompletion": false,
+													"parameters": {
+														"sourceSQLQuery": {
+															"value": "@item().sqlQuery",
+															"type": "Expression"
+														},
+														"dataSource": {
+															"value": "@item().dataSource",
+															"type": "Expression"
+														},
+														"tableName": {
+															"value": "@item().tableName",
+															"type": "Expression"
+														}
+													}
+												}
+											}
+										]
 									}
 								],
 								"defaultActivities": [
 									{
-										"name": "Run Parameter Copy Pipeline SQLServer",
-										"type": "ExecutePipeline",
+										"name": "Log Error",
+										"type": "SqlServerStoredProcedure",
 										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
 										"userProperties": [],
 										"typeProperties": {
-											"pipeline": {
-												"referenceName": "ParameterCopyPipeline",
-												"type": "PipelineReference"
-											},
-											"waitOnCompletion": false,
-											"parameters": {
-												"sourceSQLQuery": {
-													"value": "@item().sqlQuery",
-													"type": "Expression"
-												},
-												"dataSource": {
-													"value": "@item().dataSource",
-													"type": "Expression"
-												},
-												"tableName": {
-													"value": "@item().tableName",
-													"type": "Expression"
-												}
-											}
+											"storedProcedureName": "exec stperrorlog "
+										},
+										"linkedServiceName": {
+											"referenceName": "sqlconnection",
+											"type": "LinkedServiceReference"
 										}
 									}
 								]
