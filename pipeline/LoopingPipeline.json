@@ -143,11 +143,14 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"storedProcedureName": "exec stperrorlog "
+											"storedProcedureName": "EXEC Automation.stpGetRunJobs 'SQLServer', '03:00:00.0000000'"
 										},
 										"linkedServiceName": {
 											"referenceName": "sqlconnection",
-											"type": "LinkedServiceReference"
+											"type": "LinkedServiceReference",
+											"parameters": {
+												"Environment": "dev"
+											}
 										}
 									}
 								]
